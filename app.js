@@ -4,20 +4,25 @@ const app = document.querySelector("#app");
 const main = document.querySelector("#main");
 const announcement = document.querySelector("#announcement");
 const storageKey = "zhyldtaryh.works.v1";
-const emptyWork = () => ({ read: {}, attempts: {}, quizDrafts: {}, reports: {}, reportDrafts: {} });
+const emptyWork = () => ({ read: {}, attempts: {}, quizDrafts: {}, reports: {}, reportDrafts: {}, pending: {} });
 const work = { kg: emptyWork(), world: emptyWork() };
 let storageAvailable = true;
+let activeStorageKey = storageKey;
 
-try {
-  const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
-  for (const key of Object.keys(work)) {
-    if (saved?.[key]) Object.assign(work[key], saved[key]);
+function loadWork(owner = "") {
+  activeStorageKey = owner ? storageKey + "." + owner : storageKey;
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(activeStorageKey) || "{}");
+    storageAvailable = true;
+  } catch {
+    storageAvailable = false;
   }
-} catch {
-  storageAvailable = false;
+  for (const track of Object.keys(work)) work[track] = { ...emptyWork(), ...saved?.[track] };
 }
+loadWork();
 
-const knownSections = ["home", "plans", "lectures", "lesson", "practice", "report", "tests", "test", "exam", "sources", "progress"];
+const knownSections = ["home", "plans", "lectures", "lesson", "practice", "report", "tests", "test", "exam", "sources", "progress", "account", "admin"];
 const parentSections = { lesson: "lectures", report: "practice", test: "tests" };
 const escape = value => String(value ?? "").replace(/[&<>"']/g, letter => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -27,7 +32,7 @@ const link = (href, label, variant = "quiet") => `<a class="button button-${vari
 
 function save() {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(work));
+    localStorage.setItem(activeStorageKey, JSON.stringify(work));
     storageAvailable = true;
   } catch {
     storageAvailable = false;
@@ -94,10 +99,13 @@ function attemptsFor(track, index) {
 function completion(track) {
   const records = work[track];
   const tests = ["1", "2", "3", "4", "5", "final"].filter(index => attemptsFor(track, index).count > 0).length;
-  return tests + Object.keys(records.reports).filter(index => index === "1" || index === "2").length;
+  const online = window.CourseJournal?.isStudent();
+  const reports = ["1", "2"].filter(index => online ? records.reports[index]?.submitted : records.reports[index]);
+  return tests + reports.length;
 }
 
 function localStatus() {
+  if (window.CourseJournal?.isStudent()) return "Кирип туруп аяктаган тесттериңиз жана мугалимге тапшырган отчётторуңуз журналга жөнөтүлөт.";
   return storageAvailable
     ? "Жыйынтыктар ушул браузерде сакталат. Отчётту жүктөп алып, мугалимге жөнөтсөңүз болот."
     : "Браузерде сактоо жеткиликсиз. Отчётту файл кылып жүктөп алыңыз.";
@@ -217,6 +225,7 @@ function renderReport(track, index) {
         <p id="report-status" class="notice" role="status">${previous ? "Отчёт сакталган." : ""}</p>
         <div class="actions">
           <button class="button button-primary" type="submit">Отчётту сактоо</button>
+          ${window.CourseJournal?.isStudent() ? '<button class="button button-soft" type="button" data-action="send-report">Мугалимге тапшыруу</button>' : ""}
           <button class="button button-quiet" type="button" data-action="download" ${previous ? "" : "disabled"}>Файлды жүктөө</button>
         </div>
       </form>
@@ -293,6 +302,7 @@ function renderTest(track, index) {
         </label>`).join("")}
       </fieldset>`;
     }).join("")}
+    <p class="notice" id="quiz-status" role="status"></p>
     <div class="actions">
       <button class="button button-primary" type="submit">Тестти аяктоо</button>
       ${link(route("tests", track), "Тесттер тизмеси")}
@@ -393,7 +403,9 @@ function renderProgress(track) {
 const renderers = {
   home: renderHome, plans: renderPlans, lectures: renderLectures, lesson: renderLesson,
   practice: renderPractice, report: renderReport, tests: renderTests, test: renderTest,
-  exam: renderExam, sources: renderSources, progress: renderProgress
+  exam: renderExam, sources: renderSources, progress: renderProgress,
+  account: () => window.CourseJournal?.renderAccount() || pageHead("Аккаунт", ""),
+  admin: () => window.CourseJournal?.renderAdmin() || pageHead("Мугалим журналы", "")
 };
 
 function render({ moveFocus = false } = {}) {
@@ -458,7 +470,7 @@ app.addEventListener("change", event => {
   save();
 });
 
-app.addEventListener("submit", event => {
+app.addEventListener("submit", async event => {
   event.preventDefault();
   const { track, index } = getRoute();
   const form = event.target;
@@ -473,11 +485,27 @@ app.addEventListener("submit", event => {
     const answers = selected.map(Number);
     const correct = answers.filter(value => value === 0).length;
     const percent = Math.round(100 * correct / questions.length);
+    if (window.CourseJournal?.isStudent()) {
+      const submit = form.querySelector("[type=submit]");
+      const status = form.querySelector("#quiz-status");
+      if (submit.disabled) return;
+      submit.disabled = true;
+      status.textContent = "Жыйынтык журналга жазылууда…";
+      try {
+        if (!await window.CourseJournal.submit("test", track, index, answers)) return;
+      } catch (error) {
+        status.classList.add("error");
+        status.textContent = error.message;
+        submit.disabled = false;
+        return;
+      }
+    }
     const previous = attemptsFor(track, index);
     work[track].attempts[index] = { count: previous.count + 1, best: Math.max(previous.best, percent), latest: { correct, percent, answers } };
     delete work[track].quizDrafts[index];
     const saved = save();
-    render({ moveFocus: true });
+    const current = getRoute();
+    if (current.section === "test" && current.track === track && current.index === index) render({ moveFocus: true });
     announce("Тесттин жыйынтыгы " + percent + "%." + (saved ? "" : " Жыйынтык браузерге сакталган жок."));
   }
   if (form.id === "report-form") {
@@ -490,7 +518,10 @@ app.addEventListener("submit", event => {
       form.elements.namedItem("p" + blank).focus();
       return;
     }
-    work[track].reports[index] = { answers: values, date: new Date().toISOString() };
+    const previous = work[track].reports[index];
+    if (!previous?.submitted || JSON.stringify(previous.answers) !== JSON.stringify(values)) {
+      work[track].reports[index] = { answers: values, date: new Date().toISOString() };
+    }
     work[track].reportDrafts[index] = values;
     const saved = save();
     status.classList.toggle("error", !saved);
@@ -499,7 +530,7 @@ app.addEventListener("submit", event => {
   }
 });
 
-app.addEventListener("click", event => {
+app.addEventListener("click", async event => {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
   const { track, index } = getRoute();
@@ -516,6 +547,38 @@ app.addEventListener("click", event => {
     if (!saved) document.querySelector("#lesson-message").textContent = "Белги ушул сеанс бүткөнгө чейин көрүнөт.";
   }
   if (button.dataset.action === "download") downloadReport(track, index);
+  if (button.dataset.action === "send-report" && window.CourseJournal?.isStudent()) {
+    const form = button.form;
+    const status = form.querySelector("#report-status");
+    const values = reportAnswers(form, track, index).map(value => value.trim());
+    if (!form.reportValidity() || values.some(value => !value)) {
+      status.classList.add("error");
+      status.textContent = "Бардык тапшырмаларга жооп жазыңыз.";
+      return;
+    }
+    const last = work[track].reports[index];
+    if (last?.submitted && JSON.stringify(last.answers) === JSON.stringify(values)) {
+      status.classList.remove("error");
+      status.textContent = "Бул нуска мугалимге тапшырылган.";
+      return;
+    }
+    button.disabled = true;
+    status.classList.remove("error");
+    status.textContent = "Отчёт жөнөтүлүүдө…";
+    try {
+      const result = await window.CourseJournal.submit("report", track, index, values);
+      if (!result) return;
+      work[track].reports[index] = { answers: values, date: result.date, submitted: true };
+      save();
+      form.querySelector("[data-action=download]").disabled = false;
+      status.textContent = "Отчёт мугалимге тапшырылды.";
+    } catch (error) {
+      status.classList.add("error");
+      status.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  }
 });
 
 document.querySelector("#skip-link").addEventListener("click", event => {

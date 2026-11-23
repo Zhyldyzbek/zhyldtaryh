@@ -22,6 +22,7 @@ a { color: var(--forest); text-underline-offset: .2em; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; opacity: .55; }
+[hidden] { display: none !important; }
 :focus-visible { outline: 3px solid #b27911; outline-offset: 4px; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2 { font-family: var(--serif); line-height: 1.1; letter-spacing: -.035em; }
@@ -37,6 +38,7 @@ li + li { margin-top: .45rem; }
 
 .site-header { background: var(--white); border-bottom: 1px solid var(--line); }
 .topbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.topbar-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
 .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-size: 1.37rem; letter-spacing: -.05em; font-weight: 750; text-decoration: none; }
 .brand-mark { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 11px; color: var(--sand); background: var(--night); font: italic 700 1.65rem/1 var(--serif); }
 .nav-line { border-top: 1px solid #eef1ed; }
@@ -126,6 +128,17 @@ progress::-moz-progress-bar { background: var(--forest); border-radius: 20px; }
 .notice { padding: .65rem .85rem; background: var(--pale); border-radius: 8px; color: var(--forest); font-weight: 600; }
 .notice:empty { display: none; }
 .notice.error { color: var(--error); background: var(--error-bg); }
+.journal-input { min-height: 44px; width: 100%; color: var(--ink); background: var(--white); border: 1px solid #b9c8bc; border-radius: 9px; padding: .62rem .75rem; }
+.journal-enroll { display: flex; flex-wrap: wrap; gap: .6rem; align-items: flex-end; margin: .85rem 0 1rem; }
+.journal-enroll .field { flex: 1 1 235px; max-width: 410px; margin: 0; }
+.journal-code { overflow-wrap: anywhere; }
+.journal-work { white-space: pre-wrap; overflow-wrap: anywhere; }
+.journal-table-wrap { overflow-x: auto; margin: 0 0 1rem; }
+.journal-table { border-collapse: collapse; width: 100%; text-align: left; min-width: 515px; }
+.journal-table th, .journal-table td { padding: .58rem .7rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.journal-table thead th { color: var(--muted); font-size: .88rem; background: var(--paper); }
+.journal-table tbody th { font-weight: 600; }
+.journal-name { padding: .1rem 0; border: 0; background: transparent; color: var(--forest); text-decoration: underline; text-underline-offset: .2em; }
 .field { margin: 0 0 1.25rem; }
 .field label { display: block; font-weight: 700; margin-bottom: .23rem; }
 .field p { margin-bottom: .5rem; color: var(--muted); }
