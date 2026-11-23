@@ -189,6 +189,47 @@ li + li { margin-top: .4rem; }
 .site-header .button-primary:hover { background: #6e1422; }
 
 .main-shell { flex: 1 0 auto; padding: 22px 0 72px; }
+.grade-board { margin: 8px 0 18px; }
+.grade-panel {
+  display: grid;
+  gap: 12px;
+  padding: 1.05rem 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+.grade-panel h3 { margin: .15rem 0 .35rem; font-size: clamp(1.6rem, 3vw, 2rem); }
+.grade-panel p { margin: 0; color: var(--muted); max-width: 68ch; }
+.grade-links { display: flex; flex-wrap: wrap; gap: .5rem; }
+.grade-links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: .35rem .85rem;
+  border-radius: 999px;
+  background: var(--pale);
+  color: var(--navy);
+  font-weight: 800;
+  text-decoration: none;
+}
+.grade-links a:hover { background: var(--gold-soft); color: var(--navy); }
+.grade-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+.grade-tab {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: .35rem .95rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--navy);
+  font-weight: 800;
+  text-decoration: none;
+}
+.grade-tab[aria-current="true"] { background: var(--navy); color: #f7f1de; border-color: var(--navy); }
+.grade-tab:hover { color: var(--navy); }
+.grade-tab[aria-current="true"]:hover { color: #f7f1de; }
 .hero { display: grid; gap: 18px; align-items: center; }
 .hero-copy { border-left: 4px solid var(--gold); padding: .2rem 0 .2rem 16px; }
 .hero-figure { margin: 0; }

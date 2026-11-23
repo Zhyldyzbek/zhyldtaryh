@@ -140,6 +140,34 @@ function progressCard() {
   </aside>`;
 }
 
+function gradeTabs() {
+  return `<nav class="grade-tabs" aria-label="Класс"><a class="grade-tab" href="#home" aria-current="true">7-класс</a></nav>`;
+}
+
+function gradeBoard() {
+  const materials = [
+    [route("lectures", "kg"), "Лекциялар"],
+    [route("practice", "kg"), "Практика"],
+    [route("tests", "kg"), "Тесттер"],
+    [route("exam", "kg"), "Зачёт"],
+    ["#plans", "КТП"],
+    ["#sources", "Булактар"]
+  ];
+  return `<section class="grade-board" aria-labelledby="grades-title">
+    <div class="section-bar"><h2 id="grades-title">Класстар</h2></div>
+    <article class="grade-panel">
+      <header>
+        <span class="kicker">Класс</span>
+        <h3>7-класс</h3>
+        <p>Бул класста Кыргызстан тарыхы менен дүйнө тарыхынын лекциялары, практикасы, тесттери, зачёту жана булактары бар.</p>
+      </header>
+      <nav class="grade-links" aria-label="7-класстын материалдары">
+        ${materials.map(([href, label]) => `<a href="${href}">${label}</a>`).join("")}
+      </nav>
+    </article>
+  </section>`;
+}
+
 function renderHome() {
   return `<section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
@@ -153,6 +181,7 @@ function renderHome() {
       <figcaption class="hero-caption">Бурана мунарасы · Чүй өрөөнү</figcaption>
     </figure>
   </section>
+  ${gradeBoard()}
   <div class="stats" aria-label="Курстун мазмуну">
     ${(getLang() === "ru" ? [[10, "лекций"], [4, "практики"], [12, "тестов"], [2, "зачёта"]] : [[10, "лекция"], [4, "практика"], [12, "тест"], [2, "зачёт"]]).map(([number, label]) => `<div class="stat"><strong>${number}</strong><span>${label}</span></div>`).join("")}
   </div>
@@ -171,7 +200,7 @@ function renderHome() {
 }
 
 function renderPlans() {
-  return pageHead(plan.title, plan.details, "Календардык-тематикалык план") + `<div class="stack">
+  return gradeTabs() + pageHead(plan.title, plan.details, "Календардык-тематикалык план") + `<div class="stack">
     <section class="panel">
       <p>Сайттагы сабактар КББАнын болжолдуу планынын жети бөлүмүнөн тандалган темаларды камтыйт. Толук темалар жана сааттар расмий документте берилген.</p>
       <div class="actions">${link(plan.pdf, "Расмий КТПны ачуу (PDF)", "primary")} ${link(plan.page, "КББАнын 7-класс барагы")}</div>
@@ -191,7 +220,7 @@ function renderPlans() {
 }
 
 function renderLectures(track) {
-  return pageHead("Лекциялар", courses[track].summary, "7-класс")
+  return gradeTabs() + pageHead("Лекциялар", courses[track].summary, "7-класс")
     + trackSwitch("lectures", track)
     + `<ol class="row-list">${courses[track].lessons.map((unit, index) => {
       const number = index + 1;
@@ -203,7 +232,7 @@ function renderLectures(track) {
 function renderLesson(track, index) {
   const unit = courses[track].lessons[Number(index) - 1];
   const read = Boolean(work[track].read[index]);
-  return pageHead(unit.title, unit.lead, courses[track].title + " · " + index + "-лекция")
+  return gradeTabs() + pageHead(unit.title, unit.lead, courses[track].title + " · " + index + "-лекция")
     + `<article class="panel article">
       ${track === "kg" && index === "3" ? `<figure class="figure"><img class="history-image" src="burana.jpg" alt="Бурана мунарасы жана анын айланасындагы тарыхый жай" width="960" height="595" decoding="async"><figcaption>Бурана мунарасы, Чүй өрөөнү</figcaption></figure>` : ""}
       ${unit.sections.map(([heading, text]) => `<section><h2>${escape(heading)}</h2><p>${escape(text)}</p></section>`).join("")}
@@ -218,7 +247,7 @@ function renderLesson(track, index) {
 }
 
 function renderPractice(track) {
-  return pageHead("Практикалык иштер", "Булактарды салыштырып, жоопторуңузду файлга сактаңыз.", "7-класс")
+  return gradeTabs() + pageHead("Практикалык иштер", "Булактарды салыштырып, жоопторуңузду файлга сактаңыз.", "7-класс")
     + trackSwitch("practice", track)
     + `<ol class="row-list">${courses[track].practices.map((task, index) => {
       const number = index + 1;
@@ -232,7 +261,7 @@ function renderReport(track, index) {
   const record = work[track];
   const values = record.reportDrafts[index] || record.reports[index]?.answers || [];
   const previous = record.reports[index];
-  return pageHead(task.title, task.description, courses[track].title + " · " + index + "-практика")
+  return gradeTabs() + pageHead(task.title, task.description, courses[track].title + " · " + index + "-практика")
     + `<div class="layout">
       <form class="panel" id="report-form">
         ${task.prompts.map(([title, instruction], number) => `<div class="field">
@@ -258,7 +287,7 @@ function renderReport(track, index) {
 function renderTests(track) {
   const entries = courses[track].lessons.map(({ title }, index) => ({ index: String(index + 1), title }));
   entries.push({ index: "final", title: "Жыйынтыктоочу тест" });
-  return pageHead("Тесттер", "Ар бир тесттин жыйынтыгы дароо чыгат. Тестти кайра тапшырып, мыкты упайыңызды көрө аласыз.", "7-класс")
+  return gradeTabs() + pageHead("Тесттер", "Ар бир тесттин жыйынтыгы дароо чыгат. Тестти кайра тапшырып, мыкты упайыңызды көрө аласыз.", "7-класс")
     + trackSwitch("tests", track)
     + `<ol class="row-list">${entries.map(({ index, title }) => {
       const result = attemptsFor(track, index);
@@ -294,7 +323,7 @@ function renderTest(track, index) {
   const title = index === "final" ? "Жыйынтыктоочу тест" : courses[track].lessons[Number(index) - 1].title;
   const subtitle = courses[track].title + (index === "final" ? " · Жыйынтык" : " · " + index + "-лекциянын тести");
   if (result && !draft) {
-    return pageHead(title, "Жоопторду жана түшүндүрмөлөрдү карап чыгыңыз.", subtitle) + `<article class="panel article">
+    return gradeTabs() + pageHead(title, "Жоопторду жана түшүндүрмөлөрдү карап чыгыңыз.", subtitle) + `<article class="panel article">
       <h2>Жыйынтык</h2><strong class="result-score" tabindex="-1">${result.percent}%</strong>
       <p>${result.correct} / ${questions.length} ${getLang() === "ru" ? "верных ответов · оценка" : "туура жооп · баа"} ${grade(result.percent)}</p>
       <div class="actions"><button class="button button-primary" type="button" data-action="retry">Кайра тапшыруу</button>${link(route("tests", track), "Тесттер тизмеси")}</div>
@@ -312,7 +341,7 @@ function renderTest(track, index) {
     </article>`;
   }
   const answers = draft || {};
-  return pageHead(title, "Ар бир суроого бирден жооп тандаңыз.", subtitle) + `<form class="panel article" id="quiz-form">
+  return gradeTabs() + pageHead(title, "Ар бир суроого бирден жооп тандаңыз.", subtitle) + `<form class="panel article" id="quiz-form">
     ${questions.map((question, number) => {
       const options = [question.answer, ...question.alternatives];
       return `<fieldset class="question">
@@ -356,7 +385,7 @@ const oralPrompts = {
 
 function renderExam(track) {
   const prompts = oralPrompts[track];
-  return pageHead("Зачёт", "Курс боюнча өз алдынча даярдануу үчүн үлгү. Тапшырмаларды мугалим менен талкуулап аткарыңыз.", "7-класс")
+  return gradeTabs() + pageHead("Зачёт", "Курс боюнча өз алдынча даярдануу үчүн үлгү. Тапшырмаларды мугалим менен талкуулап аткарыңыз.", "7-класс")
     + trackSwitch("exam", track) + `<article class="panel article">
       <section>
         <h2>1. Жазуу иши · 60 упай</h2>
@@ -377,7 +406,7 @@ function renderExam(track) {
 }
 
 function renderSources() {
-  return pageHead("Булактар", "Расмий КТП, тарыхый материалдар жана сүрөттүн булагы.") + `<article class="panel article">
+  return gradeTabs() + pageHead("Булактар", "Расмий КТП, тарыхый материалдар жана сүрөттүн булагы.") + `<article class="panel article">
     <section>
       <h2>Кыргыз билим берүү академиясы</h2>
       <ul class="source-list">
@@ -398,7 +427,7 @@ function renderProgress(track) {
   const course = courses[track];
   const testRows = [...course.lessons.map((unit, index) => [String(index + 1), unit.title]), ["final", "Жыйынтыктоочу тест"]];
   const done = completion(track);
-  return pageHead("Менин иштерим", localStatus()) + trackSwitch("progress", track)
+  return gradeTabs() + pageHead("Менин иштерим", localStatus()) + trackSwitch("progress", track)
     + `<div class="stack">
       <section class="panel">
         <div class="progress-cover"><strong>${done} / 8</strong><span class="muted">аткарылган иш</span></div>
