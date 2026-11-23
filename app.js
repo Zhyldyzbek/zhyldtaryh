@@ -12,7 +12,7 @@ function setNavOpen(open) {
   navLine.classList.toggle("is-open", open);
   navToggle.setAttribute("aria-expanded", open ? "true" : "false");
   const label = navToggle.querySelector(".sr-only");
-  if (label) label.textContent = open ? "Менюну жабуу" : "Меню";
+  if (label) label.textContent = tr(open ? "Менюну жабуу" : "Меню");
 }
 
 function syncToTop() {
@@ -144,7 +144,7 @@ function renderHome() {
   return `<section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
       <span class="kicker">7-класс · Тарых курсу</span>
-      <h1 id="hero-title" tabindex="-1">Кыргызстан жана<br>дүйнө тарыхы</h1>
+      <h1 id="hero-title" tabindex="-1">${getLang() === "ru" ? "История Кыргызстана<br>и мира" : "Кыргызстан жана<br>дүйнө тарыхы"}</h1>
       <p class="intro">Эне-Сай кыргыздарынан орто кылымдагы дүйнөгө чейин. КББАнын КТПсына негизделген сабактар.</p>
       <div class="actions">${link(route("lectures", "kg"), "Окууну баштоо", "gold")}</div>
     </div>
@@ -154,14 +154,14 @@ function renderHome() {
     </figure>
   </section>
   <div class="stats" aria-label="Курстун мазмуну">
-    ${[[10, "лекция"], [4, "практика"], [12, "тест"], [2, "зачёт"]].map(([number, label]) => `<div class="stat"><strong>${number}</strong><span>${label}</span></div>`).join("")}
+    ${(getLang() === "ru" ? [[10, "лекций"], [4, "практики"], [12, "тестов"], [2, "зачёта"]] : [[10, "лекция"], [4, "практика"], [12, "тест"], [2, "зачёт"]]).map(([number, label]) => `<div class="stat"><strong>${number}</strong><span>${label}</span></div>`).join("")}
   </div>
   <div class="layout">
     <section aria-labelledby="tracks-title">
       <div class="section-bar"><h2 id="tracks-title">Окуу багыттары</h2><a href="#plans">КТПны көрүү</a></div>
       <div class="track-list">
         ${Object.entries(courses).map(([key, course]) => `<a class="track-card" href="${route("lectures", key)}">
-          <span class="track-tag" aria-hidden="true">${key === "kg" ? "КР" : "ДТ"}</span>
+          <span class="track-tag" aria-hidden="true">${key === "kg" ? "КР" : (getLang() === "ru" ? "ВИ" : "ДТ")}</span>
           <div><h3>${escape(course.title)}</h3><p>${escape(course.summary)}</p></div>
         </a>`).join("")}
       </div>
@@ -262,9 +262,12 @@ function renderTests(track) {
     + trackSwitch("tests", track)
     + `<ol class="row-list">${entries.map(({ index, title }) => {
       const result = attemptsFor(track, index);
-      const content = questionsFor(track, index).length + " суроо";
-      const meta = result.count ? content + " · " + result.count + " аракет · мыктысы " + result.best + "%" : content;
-      return row(route("test", track, index), index === "final" ? "ЖТ" : index, title, meta, result.count ? "Аткарылды" : "", Boolean(result.count));
+      const total = questionsFor(track, index).length;
+      const content = getLang() === "ru" ? ruPlural(total, "вопрос", "вопроса", "вопросов") : total + " суроо";
+      const meta = result.count
+        ? content + " · " + (getLang() === "ru" ? ruPlural(result.count, "попытка", "попытки", "попыток") + " · лучший результат " : result.count + " аракет · мыктысы ") + result.best + "%"
+        : content;
+      return row(route("test", track, index), index === "final" ? (getLang() === "ru" ? "ИТ" : "ЖТ") : index, title, meta, result.count ? "Аткарылды" : "", Boolean(result.count));
     }).join("")}</ol>`;
 }
 
@@ -293,7 +296,7 @@ function renderTest(track, index) {
   if (result && !draft) {
     return pageHead(title, "Жоопторду жана түшүндүрмөлөрдү карап чыгыңыз.", subtitle) + `<article class="panel article">
       <h2>Жыйынтык</h2><strong class="result-score" tabindex="-1">${result.percent}%</strong>
-      <p>${result.correct} / ${questions.length} туура жооп · баа ${grade(result.percent)}</p>
+      <p>${result.correct} / ${questions.length} ${getLang() === "ru" ? "верных ответов · оценка" : "туура жооп · баа"} ${grade(result.percent)}</p>
       <div class="actions"><button class="button button-primary" type="button" data-action="retry">Кайра тапшыруу</button>${link(route("tests", track), "Тесттер тизмеси")}</div>
       <h2 style="margin-top:1.4rem">Жоопторду текшерүү</h2>
       ${questions.map((question, number) => {
@@ -405,7 +408,7 @@ function renderProgress(track) {
       <section aria-label="Тесттер"><div class="section-bar"><h2>Тесттер</h2></div>
         <ul class="row-list">${testRows.map(([index, title]) => {
           const attempt = attemptsFor(track, index);
-          return row(route("test", track, index), index === "final" ? "ЖТ" : index, title, attempt.count ? "Мыктысы " + attempt.best + "%" : "Аткарыла элек", attempt.count ? "Аткарылды" : "", Boolean(attempt.count));
+          return row(route("test", track, index), index === "final" ? (getLang() === "ru" ? "ИТ" : "ЖТ") : index, title, attempt.count ? (getLang() === "ru" ? "Лучший результат " : "Мыктысы ") + attempt.best + "%" : "Аткарыла элек", attempt.count ? "Аткарылды" : "", Boolean(attempt.count));
         }).join("")}</ul>
       </section>
       <section aria-label="Практика"><div class="section-bar"><h2>Практика</h2></div>
@@ -436,11 +439,12 @@ function render({ moveFocus = false } = {}) {
     else tab.removeAttribute("aria-current");
   }
   document.querySelector("#progress-link").href = route("progress", track);
-  app.innerHTML = renderers[section](track, index);
+  app.innerHTML = localizeHtml(renderers[section](track, index));
   setNavOpen(false);
   syncToTop();
   const heading = app.querySelector("h1");
-  document.title = section === "home" ? "zhyldtaryh · Тарых курсу" : heading.textContent.trim() + " · zhyldtaryh";
+  document.title = section === "home" ? tr("zhyldtaryh · Тарых курсу") : heading.textContent.trim() + " · zhyldtaryh";
+  applyChrome();
   if (moveFocus) {
     window.scrollTo(0, 0);
     heading.focus({ preventScroll: true });
@@ -458,9 +462,9 @@ function downloadReport(track, index) {
   const course = courses[track];
   const task = course.practices[Number(index) - 1];
   const content = [
-    "zhyldtaryh · 7-класс · " + course.title,
-    index + "-практика. " + task.title,
-    ...task.prompts.map(([title], number) => (number + 1) + ". " + title + "\n" + saved.answers[number])
+    tr("zhyldtaryh · 7-класс · ") + tr(course.title),
+    index + tr("-практика") + ". " + tr(task.title),
+    ...task.prompts.map(([title], number) => (number + 1) + ". " + tr(title) + "\n" + saved.answers[number])
   ].join("\n\n");
   const url = URL.createObjectURL(new Blob(["\ufeff", content], { type: "text/plain;charset=utf-8" }));
   const anchor = document.createElement("a");
@@ -477,7 +481,7 @@ app.addEventListener("input", event => {
     const saved = save();
     const status = document.querySelector("#report-status");
     status.classList.toggle("error", !saved);
-    status.textContent = saved ? "Каралама сакталууда. Бүткөндө отчётту сактаңыз." : "Каралама браузерде сакталган жок.";
+    status.textContent = tr(saved ? "Каралама сакталууда. Бүткөндө отчётту сактаңыз." : "Каралама браузерде сакталган жок.");
   }
 });
 
@@ -499,7 +503,7 @@ app.addEventListener("submit", async event => {
     const data = new FormData(form);
     const selected = questions.map((_, number) => data.get("q" + number));
     if (selected.some((value, number) => value === null || !/^[0-3]$/.test(value) || Number(value) > questions[number].alternatives.length)) {
-      announce("Ар бир суроого бирден жооп тандаңыз.");
+      announce(tr("Ар бир суроого бирден жооп тандаңыз."));
       return;
     }
     const answers = selected.map(Number);
@@ -510,12 +514,12 @@ app.addEventListener("submit", async event => {
       const status = form.querySelector("#quiz-status");
       if (submit.disabled) return;
       submit.disabled = true;
-      status.textContent = "Жыйынтык журналга жазылууда…";
+      status.textContent = tr("Жыйынтык журналга жазылууда…");
       try {
         if (!await window.CourseJournal.submit("test", track, index, answers)) return;
       } catch (error) {
         status.classList.add("error");
-        status.textContent = error.message;
+        status.textContent = tr(error.message);
         submit.disabled = false;
         return;
       }
@@ -526,7 +530,7 @@ app.addEventListener("submit", async event => {
     const saved = save();
     const current = getRoute();
     if (current.section === "test" && current.track === track && current.index === index) render({ moveFocus: true });
-    announce("Тесттин жыйынтыгы " + percent + "%." + (saved ? "" : " Жыйынтык браузерге сакталган жок."));
+    announce(tr("Тесттин жыйынтыгы ") + percent + "%." + (saved ? "" : tr(" Жыйынтык браузерге сакталган жок.")));
   }
   if (form.id === "report-form") {
     const values = reportAnswers(form, track, index).map(value => value.trim());
@@ -534,7 +538,7 @@ app.addEventListener("submit", async event => {
     const blank = values.findIndex(value => !value);
     if (blank !== -1) {
       status.classList.add("error");
-      status.textContent = "Бардык тапшырмаларга жооп жазыңыз.";
+      status.textContent = tr("Бардык тапшырмаларга жооп жазыңыз.");
       form.elements.namedItem("p" + blank).focus();
       return;
     }
@@ -545,7 +549,7 @@ app.addEventListener("submit", async event => {
     work[track].reportDrafts[index] = values;
     const saved = save();
     status.classList.toggle("error", !saved);
-    status.textContent = saved ? "Отчёт сакталды. Файлды жүктөп алсаңыз болот." : "Браузерде сактоо жеткиликсиз. Отчётту азыр файл катары жүктөп алыңыз.";
+    status.textContent = tr(saved ? "Отчёт сакталды. Файлды жүктөп алсаңыз болот." : "Браузерде сактоо жеткиликсиз. Отчётту азыр файл катары жүктөп алыңыз.");
     form.querySelector("[data-action=download]").disabled = false;
   }
 });
@@ -563,8 +567,8 @@ app.addEventListener("click", async event => {
     work[track].read[index] = true;
     const saved = save();
     button.disabled = true;
-    button.textContent = "Окулду";
-    if (!saved) document.querySelector("#lesson-message").textContent = "Белги ушул сеанс бүткөнгө чейин көрүнөт.";
+    button.textContent = tr("Окулду");
+    if (!saved) document.querySelector("#lesson-message").textContent = tr("Белги ушул сеанс бүткөнгө чейин көрүнөт.");
   }
   if (button.dataset.action === "download") downloadReport(track, index);
   if (button.dataset.action === "send-report" && window.CourseJournal?.isStudent()) {
@@ -573,28 +577,28 @@ app.addEventListener("click", async event => {
     const values = reportAnswers(form, track, index).map(value => value.trim());
     if (!form.reportValidity() || values.some(value => !value)) {
       status.classList.add("error");
-      status.textContent = "Бардык тапшырмаларга жооп жазыңыз.";
+      status.textContent = tr("Бардык тапшырмаларга жооп жазыңыз.");
       return;
     }
     const last = work[track].reports[index];
     if (last?.submitted && JSON.stringify(last.answers) === JSON.stringify(values)) {
       status.classList.remove("error");
-      status.textContent = "Бул нуска мугалимге тапшырылган.";
+      status.textContent = tr("Бул нуска мугалимге тапшырылган.");
       return;
     }
     button.disabled = true;
     status.classList.remove("error");
-    status.textContent = "Отчёт жөнөтүлүүдө…";
+    status.textContent = tr("Отчёт жөнөтүлүүдө…");
     try {
       const result = await window.CourseJournal.submit("report", track, index, values);
       if (!result) return;
       work[track].reports[index] = { answers: values, date: result.date, submitted: true };
       save();
       form.querySelector("[data-action=download]").disabled = false;
-      status.textContent = "Отчёт мугалимге тапшырылды.";
+      status.textContent = tr("Отчёт мугалимге тапшырылды.");
     } catch (error) {
       status.classList.add("error");
-      status.textContent = error.message;
+      status.textContent = tr(error.message);
     } finally {
       button.disabled = false;
     }
@@ -621,6 +625,11 @@ toTop?.addEventListener("click", event => {
   event.preventDefault();
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+});
+document.addEventListener("click", event => {
+  const button = event.target.closest("[data-set-lang]");
+  if (!button || button.getAttribute("data-set-lang") === getLang()) return;
+  setLang(button.getAttribute("data-set-lang"));
 });
 window.addEventListener("hashchange", () => render({ moveFocus: true }));
 render();
