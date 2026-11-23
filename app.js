@@ -12,7 +12,7 @@ function setNavOpen(open) {
   navLine.classList.toggle("is-open", open);
   navToggle.setAttribute("aria-expanded", open ? "true" : "false");
   const label = navToggle.querySelector(".sr-only");
-  if (label) label.textContent = open ? "Менюну жабуу" : "Меню";
+  if (label) label.textContent = tr(open ? "Менюну жабуу" : "Меню");
 }
 
 function syncToTop() {
@@ -140,11 +140,39 @@ function progressCard() {
   </aside>`;
 }
 
+function gradeTabs() {
+  return `<nav class="grade-tabs" aria-label="Класс"><a class="grade-tab" href="#home" aria-current="true">7-класс</a></nav>`;
+}
+
+function gradeBoard() {
+  const materials = [
+    [route("lectures", "kg"), "Лекциялар"],
+    [route("practice", "kg"), "Практика"],
+    [route("tests", "kg"), "Тесттер"],
+    [route("exam", "kg"), "Зачёт"],
+    ["#plans", "КТП"],
+    ["#sources", "Булактар"]
+  ];
+  return `<section class="grade-board" aria-labelledby="grades-title">
+    <div class="section-bar"><h2 id="grades-title">Класстар</h2></div>
+    <article class="grade-panel">
+      <header>
+        <span class="kicker">Класс</span>
+        <h3>7-класс</h3>
+        <p>Бул класста Кыргызстан тарыхы менен дүйнө тарыхынын лекциялары, практикасы, тесттери, зачёту жана булактары бар.</p>
+      </header>
+      <nav class="grade-links" aria-label="7-класстын материалдары">
+        ${materials.map(([href, label]) => `<a href="${href}">${label}</a>`).join("")}
+      </nav>
+    </article>
+  </section>`;
+}
+
 function renderHome() {
   return `<section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
       <span class="kicker">7-класс · Тарых курсу</span>
-      <h1 id="hero-title" tabindex="-1">Кыргызстан жана<br>дүйнө тарыхы</h1>
+      <h1 id="hero-title" tabindex="-1">${getLang() === "ru" ? "История Кыргызстана<br>и мира" : "Кыргызстан жана<br>дүйнө тарыхы"}</h1>
       <p class="intro">Эне-Сай кыргыздарынан орто кылымдагы дүйнөгө чейин. КББАнын КТПсына негизделген сабактар.</p>
       <div class="actions">${link(route("lectures", "kg"), "Окууну баштоо", "gold")}</div>
     </div>
@@ -153,15 +181,16 @@ function renderHome() {
       <figcaption class="hero-caption">Бурана мунарасы · Чүй өрөөнү</figcaption>
     </figure>
   </section>
+  ${gradeBoard()}
   <div class="stats" aria-label="Курстун мазмуну">
-    ${[[10, "лекция"], [4, "практика"], [12, "тест"], [2, "зачёт"]].map(([number, label]) => `<div class="stat"><strong>${number}</strong><span>${label}</span></div>`).join("")}
+    ${(getLang() === "ru" ? [[10, "лекций"], [4, "практики"], [12, "тестов"], [2, "зачёта"]] : [[10, "лекция"], [4, "практика"], [12, "тест"], [2, "зачёт"]]).map(([number, label]) => `<div class="stat"><strong>${number}</strong><span>${label}</span></div>`).join("")}
   </div>
   <div class="layout">
     <section aria-labelledby="tracks-title">
       <div class="section-bar"><h2 id="tracks-title">Окуу багыттары</h2><a href="#plans">КТПны көрүү</a></div>
       <div class="track-list">
         ${Object.entries(courses).map(([key, course]) => `<a class="track-card" href="${route("lectures", key)}">
-          <span class="track-tag" aria-hidden="true">${key === "kg" ? "КР" : "ДТ"}</span>
+          <span class="track-tag" aria-hidden="true">${key === "kg" ? "КР" : (getLang() === "ru" ? "ВИ" : "ДТ")}</span>
           <div><h3>${escape(course.title)}</h3><p>${escape(course.summary)}</p></div>
         </a>`).join("")}
       </div>
@@ -171,7 +200,7 @@ function renderHome() {
 }
 
 function renderPlans() {
-  return pageHead(plan.title, plan.details, "Календардык-тематикалык план") + `<div class="stack">
+  return gradeTabs() + pageHead(plan.title, plan.details, "Календардык-тематикалык план") + `<div class="stack">
     <section class="panel">
       <p>Сайттагы сабактар КББАнын болжолдуу планынын жети бөлүмүнөн тандалган темаларды камтыйт. Толук темалар жана сааттар расмий документте берилген.</p>
       <div class="actions">${link(plan.pdf, "Расмий КТПны ачуу (PDF)", "primary")} ${link(plan.page, "КББАнын 7-класс барагы")}</div>
@@ -191,7 +220,7 @@ function renderPlans() {
 }
 
 function renderLectures(track) {
-  return pageHead("Лекциялар", courses[track].summary, "7-класс")
+  return gradeTabs() + pageHead("Лекциялар", courses[track].summary, "7-класс")
     + trackSwitch("lectures", track)
     + `<ol class="row-list">${courses[track].lessons.map((unit, index) => {
       const number = index + 1;
@@ -203,7 +232,7 @@ function renderLectures(track) {
 function renderLesson(track, index) {
   const unit = courses[track].lessons[Number(index) - 1];
   const read = Boolean(work[track].read[index]);
-  return pageHead(unit.title, unit.lead, courses[track].title + " · " + index + "-лекция")
+  return gradeTabs() + pageHead(unit.title, unit.lead, courses[track].title + " · " + index + "-лекция")
     + `<article class="panel article">
       ${track === "kg" && index === "3" ? `<figure class="figure"><img class="history-image" src="burana.jpg" alt="Бурана мунарасы жана анын айланасындагы тарыхый жай" width="960" height="595" decoding="async"><figcaption>Бурана мунарасы, Чүй өрөөнү</figcaption></figure>` : ""}
       ${unit.sections.map(([heading, text]) => `<section><h2>${escape(heading)}</h2><p>${escape(text)}</p></section>`).join("")}
@@ -218,7 +247,7 @@ function renderLesson(track, index) {
 }
 
 function renderPractice(track) {
-  return pageHead("Практикалык иштер", "Булактарды салыштырып, жоопторуңузду файлга сактаңыз.", "7-класс")
+  return gradeTabs() + pageHead("Практикалык иштер", "Булактарды салыштырып, жоопторуңузду файлга сактаңыз.", "7-класс")
     + trackSwitch("practice", track)
     + `<ol class="row-list">${courses[track].practices.map((task, index) => {
       const number = index + 1;
@@ -232,7 +261,7 @@ function renderReport(track, index) {
   const record = work[track];
   const values = record.reportDrafts[index] || record.reports[index]?.answers || [];
   const previous = record.reports[index];
-  return pageHead(task.title, task.description, courses[track].title + " · " + index + "-практика")
+  return gradeTabs() + pageHead(task.title, task.description, courses[track].title + " · " + index + "-практика")
     + `<div class="layout">
       <form class="panel" id="report-form">
         ${task.prompts.map(([title, instruction], number) => `<div class="field">
@@ -258,13 +287,16 @@ function renderReport(track, index) {
 function renderTests(track) {
   const entries = courses[track].lessons.map(({ title }, index) => ({ index: String(index + 1), title }));
   entries.push({ index: "final", title: "Жыйынтыктоочу тест" });
-  return pageHead("Тесттер", "Ар бир тесттин жыйынтыгы дароо чыгат. Тестти кайра тапшырып, мыкты упайыңызды көрө аласыз.", "7-класс")
+  return gradeTabs() + pageHead("Тесттер", "Ар бир тесттин жыйынтыгы дароо чыгат. Тестти кайра тапшырып, мыкты упайыңызды көрө аласыз.", "7-класс")
     + trackSwitch("tests", track)
     + `<ol class="row-list">${entries.map(({ index, title }) => {
       const result = attemptsFor(track, index);
-      const content = questionsFor(track, index).length + " суроо";
-      const meta = result.count ? content + " · " + result.count + " аракет · мыктысы " + result.best + "%" : content;
-      return row(route("test", track, index), index === "final" ? "ЖТ" : index, title, meta, result.count ? "Аткарылды" : "", Boolean(result.count));
+      const total = questionsFor(track, index).length;
+      const content = getLang() === "ru" ? ruPlural(total, "вопрос", "вопроса", "вопросов") : total + " суроо";
+      const meta = result.count
+        ? content + " · " + (getLang() === "ru" ? ruPlural(result.count, "попытка", "попытки", "попыток") + " · лучший результат " : result.count + " аракет · мыктысы ") + result.best + "%"
+        : content;
+      return row(route("test", track, index), index === "final" ? (getLang() === "ru" ? "ИТ" : "ЖТ") : index, title, meta, result.count ? "Аткарылды" : "", Boolean(result.count));
     }).join("")}</ol>`;
 }
 
@@ -291,9 +323,9 @@ function renderTest(track, index) {
   const title = index === "final" ? "Жыйынтыктоочу тест" : courses[track].lessons[Number(index) - 1].title;
   const subtitle = courses[track].title + (index === "final" ? " · Жыйынтык" : " · " + index + "-лекциянын тести");
   if (result && !draft) {
-    return pageHead(title, "Жоопторду жана түшүндүрмөлөрдү карап чыгыңыз.", subtitle) + `<article class="panel article">
+    return gradeTabs() + pageHead(title, "Жоопторду жана түшүндүрмөлөрдү карап чыгыңыз.", subtitle) + `<article class="panel article">
       <h2>Жыйынтык</h2><strong class="result-score" tabindex="-1">${result.percent}%</strong>
-      <p>${result.correct} / ${questions.length} туура жооп · баа ${grade(result.percent)}</p>
+      <p>${result.correct} / ${questions.length} ${getLang() === "ru" ? "верных ответов · оценка" : "туура жооп · баа"} ${grade(result.percent)}</p>
       <div class="actions"><button class="button button-primary" type="button" data-action="retry">Кайра тапшыруу</button>${link(route("tests", track), "Тесттер тизмеси")}</div>
       <h2 style="margin-top:1.4rem">Жоопторду текшерүү</h2>
       ${questions.map((question, number) => {
@@ -309,7 +341,7 @@ function renderTest(track, index) {
     </article>`;
   }
   const answers = draft || {};
-  return pageHead(title, "Ар бир суроого бирден жооп тандаңыз.", subtitle) + `<form class="panel article" id="quiz-form">
+  return gradeTabs() + pageHead(title, "Ар бир суроого бирден жооп тандаңыз.", subtitle) + `<form class="panel article" id="quiz-form">
     ${questions.map((question, number) => {
       const options = [question.answer, ...question.alternatives];
       return `<fieldset class="question">
@@ -353,7 +385,7 @@ const oralPrompts = {
 
 function renderExam(track) {
   const prompts = oralPrompts[track];
-  return pageHead("Зачёт", "Курс боюнча өз алдынча даярдануу үчүн үлгү. Тапшырмаларды мугалим менен талкуулап аткарыңыз.", "7-класс")
+  return gradeTabs() + pageHead("Зачёт", "Курс боюнча өз алдынча даярдануу үчүн үлгү. Тапшырмаларды мугалим менен талкуулап аткарыңыз.", "7-класс")
     + trackSwitch("exam", track) + `<article class="panel article">
       <section>
         <h2>1. Жазуу иши · 60 упай</h2>
@@ -374,7 +406,7 @@ function renderExam(track) {
 }
 
 function renderSources() {
-  return pageHead("Булактар", "Расмий КТП, тарыхый материалдар жана сүрөттүн булагы.") + `<article class="panel article">
+  return gradeTabs() + pageHead("Булактар", "Расмий КТП, тарыхый материалдар жана сүрөттүн булагы.") + `<article class="panel article">
     <section>
       <h2>Кыргыз билим берүү академиясы</h2>
       <ul class="source-list">
@@ -395,7 +427,7 @@ function renderProgress(track) {
   const course = courses[track];
   const testRows = [...course.lessons.map((unit, index) => [String(index + 1), unit.title]), ["final", "Жыйынтыктоочу тест"]];
   const done = completion(track);
-  return pageHead("Менин иштерим", localStatus()) + trackSwitch("progress", track)
+  return gradeTabs() + pageHead("Менин иштерим", localStatus()) + trackSwitch("progress", track)
     + `<div class="stack">
       <section class="panel">
         <div class="progress-cover"><strong>${done} / 8</strong><span class="muted">аткарылган иш</span></div>
@@ -405,7 +437,7 @@ function renderProgress(track) {
       <section aria-label="Тесттер"><div class="section-bar"><h2>Тесттер</h2></div>
         <ul class="row-list">${testRows.map(([index, title]) => {
           const attempt = attemptsFor(track, index);
-          return row(route("test", track, index), index === "final" ? "ЖТ" : index, title, attempt.count ? "Мыктысы " + attempt.best + "%" : "Аткарыла элек", attempt.count ? "Аткарылды" : "", Boolean(attempt.count));
+          return row(route("test", track, index), index === "final" ? (getLang() === "ru" ? "ИТ" : "ЖТ") : index, title, attempt.count ? (getLang() === "ru" ? "Лучший результат " : "Мыктысы ") + attempt.best + "%" : "Аткарыла элек", attempt.count ? "Аткарылды" : "", Boolean(attempt.count));
         }).join("")}</ul>
       </section>
       <section aria-label="Практика"><div class="section-bar"><h2>Практика</h2></div>
@@ -436,11 +468,12 @@ function render({ moveFocus = false } = {}) {
     else tab.removeAttribute("aria-current");
   }
   document.querySelector("#progress-link").href = route("progress", track);
-  app.innerHTML = renderers[section](track, index);
+  app.innerHTML = localizeHtml(renderers[section](track, index));
   setNavOpen(false);
   syncToTop();
   const heading = app.querySelector("h1");
-  document.title = section === "home" ? "zhyldtaryh · Тарых курсу" : heading.textContent.trim() + " · zhyldtaryh";
+  document.title = section === "home" ? tr("zhyldtaryh · Тарых курсу") : heading.textContent.trim() + " · zhyldtaryh";
+  applyChrome();
   if (moveFocus) {
     window.scrollTo(0, 0);
     heading.focus({ preventScroll: true });
@@ -458,9 +491,9 @@ function downloadReport(track, index) {
   const course = courses[track];
   const task = course.practices[Number(index) - 1];
   const content = [
-    "zhyldtaryh · 7-класс · " + course.title,
-    index + "-практика. " + task.title,
-    ...task.prompts.map(([title], number) => (number + 1) + ". " + title + "\n" + saved.answers[number])
+    tr("zhyldtaryh · 7-класс · ") + tr(course.title),
+    index + tr("-практика") + ". " + tr(task.title),
+    ...task.prompts.map(([title], number) => (number + 1) + ". " + tr(title) + "\n" + saved.answers[number])
   ].join("\n\n");
   const url = URL.createObjectURL(new Blob(["\ufeff", content], { type: "text/plain;charset=utf-8" }));
   const anchor = document.createElement("a");
@@ -477,7 +510,7 @@ app.addEventListener("input", event => {
     const saved = save();
     const status = document.querySelector("#report-status");
     status.classList.toggle("error", !saved);
-    status.textContent = saved ? "Каралама сакталууда. Бүткөндө отчётту сактаңыз." : "Каралама браузерде сакталган жок.";
+    status.textContent = tr(saved ? "Каралама сакталууда. Бүткөндө отчётту сактаңыз." : "Каралама браузерде сакталган жок.");
   }
 });
 
@@ -499,7 +532,7 @@ app.addEventListener("submit", async event => {
     const data = new FormData(form);
     const selected = questions.map((_, number) => data.get("q" + number));
     if (selected.some((value, number) => value === null || !/^[0-3]$/.test(value) || Number(value) > questions[number].alternatives.length)) {
-      announce("Ар бир суроого бирден жооп тандаңыз.");
+      announce(tr("Ар бир суроого бирден жооп тандаңыз."));
       return;
     }
     const answers = selected.map(Number);
@@ -510,12 +543,12 @@ app.addEventListener("submit", async event => {
       const status = form.querySelector("#quiz-status");
       if (submit.disabled) return;
       submit.disabled = true;
-      status.textContent = "Жыйынтык журналга жазылууда…";
+      status.textContent = tr("Жыйынтык журналга жазылууда…");
       try {
         if (!await window.CourseJournal.submit("test", track, index, answers)) return;
       } catch (error) {
         status.classList.add("error");
-        status.textContent = error.message;
+        status.textContent = tr(error.message);
         submit.disabled = false;
         return;
       }
@@ -526,7 +559,7 @@ app.addEventListener("submit", async event => {
     const saved = save();
     const current = getRoute();
     if (current.section === "test" && current.track === track && current.index === index) render({ moveFocus: true });
-    announce("Тесттин жыйынтыгы " + percent + "%." + (saved ? "" : " Жыйынтык браузерге сакталган жок."));
+    announce(tr("Тесттин жыйынтыгы ") + percent + "%." + (saved ? "" : tr(" Жыйынтык браузерге сакталган жок.")));
   }
   if (form.id === "report-form") {
     const values = reportAnswers(form, track, index).map(value => value.trim());
@@ -534,7 +567,7 @@ app.addEventListener("submit", async event => {
     const blank = values.findIndex(value => !value);
     if (blank !== -1) {
       status.classList.add("error");
-      status.textContent = "Бардык тапшырмаларга жооп жазыңыз.";
+      status.textContent = tr("Бардык тапшырмаларга жооп жазыңыз.");
       form.elements.namedItem("p" + blank).focus();
       return;
     }
@@ -545,7 +578,7 @@ app.addEventListener("submit", async event => {
     work[track].reportDrafts[index] = values;
     const saved = save();
     status.classList.toggle("error", !saved);
-    status.textContent = saved ? "Отчёт сакталды. Файлды жүктөп алсаңыз болот." : "Браузерде сактоо жеткиликсиз. Отчётту азыр файл катары жүктөп алыңыз.";
+    status.textContent = tr(saved ? "Отчёт сакталды. Файлды жүктөп алсаңыз болот." : "Браузерде сактоо жеткиликсиз. Отчётту азыр файл катары жүктөп алыңыз.");
     form.querySelector("[data-action=download]").disabled = false;
   }
 });
@@ -563,8 +596,8 @@ app.addEventListener("click", async event => {
     work[track].read[index] = true;
     const saved = save();
     button.disabled = true;
-    button.textContent = "Окулду";
-    if (!saved) document.querySelector("#lesson-message").textContent = "Белги ушул сеанс бүткөнгө чейин көрүнөт.";
+    button.textContent = tr("Окулду");
+    if (!saved) document.querySelector("#lesson-message").textContent = tr("Белги ушул сеанс бүткөнгө чейин көрүнөт.");
   }
   if (button.dataset.action === "download") downloadReport(track, index);
   if (button.dataset.action === "send-report" && window.CourseJournal?.isStudent()) {
@@ -573,28 +606,28 @@ app.addEventListener("click", async event => {
     const values = reportAnswers(form, track, index).map(value => value.trim());
     if (!form.reportValidity() || values.some(value => !value)) {
       status.classList.add("error");
-      status.textContent = "Бардык тапшырмаларга жооп жазыңыз.";
+      status.textContent = tr("Бардык тапшырмаларга жооп жазыңыз.");
       return;
     }
     const last = work[track].reports[index];
     if (last?.submitted && JSON.stringify(last.answers) === JSON.stringify(values)) {
       status.classList.remove("error");
-      status.textContent = "Бул нуска мугалимге тапшырылган.";
+      status.textContent = tr("Бул нуска мугалимге тапшырылган.");
       return;
     }
     button.disabled = true;
     status.classList.remove("error");
-    status.textContent = "Отчёт жөнөтүлүүдө…";
+    status.textContent = tr("Отчёт жөнөтүлүүдө…");
     try {
       const result = await window.CourseJournal.submit("report", track, index, values);
       if (!result) return;
       work[track].reports[index] = { answers: values, date: result.date, submitted: true };
       save();
       form.querySelector("[data-action=download]").disabled = false;
-      status.textContent = "Отчёт мугалимге тапшырылды.";
+      status.textContent = tr("Отчёт мугалимге тапшырылды.");
     } catch (error) {
       status.classList.add("error");
-      status.textContent = error.message;
+      status.textContent = tr(error.message);
     } finally {
       button.disabled = false;
     }
@@ -621,6 +654,11 @@ toTop?.addEventListener("click", event => {
   event.preventDefault();
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+});
+document.addEventListener("click", event => {
+  const button = event.target.closest("[data-set-lang]");
+  if (!button || button.getAttribute("data-set-lang") === getLang()) return;
+  setLang(button.getAttribute("data-set-lang"));
 });
 window.addEventListener("hashchange", () => render({ moveFocus: true }));
 render();

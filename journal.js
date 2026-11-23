@@ -74,7 +74,7 @@
   function updateHeader() {
     header.hidden = !endpoint;
     header.href = profile?.role === "teacher" ? "#admin" : "#account";
-    header.textContent = profile?.role === "teacher" ? "Мугалим журналы" : profile ? "Аккаунт" : "Кирүү";
+    header.textContent = tr(profile?.role === "teacher" ? "Мугалим журналы" : profile ? "Аккаунт" : "Кирүү");
   }
 
   function adopt(next) {
@@ -127,13 +127,13 @@
 
   function status(element, text, error = false) {
     if (!element) return;
-    element.textContent = text;
+    element.textContent = tr(text);
     element.classList.toggle("error", error);
   }
 
   function usernameInput(value = "") {
     return `<div class="field"><label for="journal-username">Логин</label>
-      <input class="journal-input" id="journal-username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="32" value="${escape(value)}"></div>`;
+      <input class="journal-input" id="journal-username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="32" value="${rawEscape(value)}"></div>`;
   }
 
   function passwordInput(isNew) {
@@ -238,8 +238,10 @@
     else location.hash = target;
   }
 
-  const formatDate = new Intl.DateTimeFormat("ky-KG", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Bishkek" });
-  const showDate = date => date && Number.isFinite(Date.parse(date)) ? formatDate.format(new Date(date)) : "—";
+  const showDate = date => {
+    if (!date || !Number.isFinite(Date.parse(date))) return "—";
+    return new Intl.DateTimeFormat(getLang() === "ru" ? "ru-RU" : "ky-KG", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Bishkek" }).format(new Date(date));
+  };
 
   function studentDetails(data) {
     const tests = new Map();
@@ -253,36 +255,36 @@
       }
     }
     return `<section class="panel" aria-labelledby="student-details-title">
-      <h2 id="student-details-title" tabindex="-1">${escape(data.student.name)}</h2>
-      <p class="muted">${data.student.username ? "Логин · " + escape(data.student.username) : "Жеке код менен катталган"}</p>
+      <h2 id="student-details-title" tabindex="-1">${rawEscape(data.student.name)}</h2>
+      <p class="muted">${data.student.username ? "Логин · " + rawEscape(data.student.username) : "Жеке код менен катталган"}</p>
       <details class="journal-reset" ${resetIssued?.student.id === data.student.id ? "open" : ""}>
         <summary>Сырсөздү баштапкы абалга келтирүү</summary>
-        <form class="journal-enroll" id="journal-reset" data-id="${escape(data.student.id)}">
+        <form class="journal-enroll" id="journal-reset" data-id="${rawEscape(data.student.id)}">
           ${data.student.username ? "" : usernameInput()}
           <button class="button button-soft" type="submit">Убактылуу сырсөз түзүү</button>
         </form>
         <p id="reset-status" class="notice" role="status"></p>
         ${resetIssued?.student.id === data.student.id ? `<div class="callout"><strong>Убактылуу сырсөз</strong>
-          <p><code class="journal-code">${escape(resetIssued.password)}</code></p>
+          <p><code class="journal-code">${rawEscape(resetIssued.password)}</code></p>
           <p class="small-note">Логин жана убактылуу сырсөздү ушул окуучуга гана бериңиз. Ал киргенде өзүнө жаңы сырсөз коёт.</p></div>`
           : '<p class="small-note">Убактылуу сырсөз түзүлгөндө окуучунун мурдагы кирүүсү токтойт.</p>'}
       </details>
-      ${Object.entries(courses).map(([track, course]) => `<h3>${escape(course.title)}</h3>
+      ${Object.entries(courses).map(([track, course]) => `<h3>${rawEscape(course.title)}</h3>
         <div class="journal-table-wrap"><table class="journal-table">
           <thead><tr><th scope="col">Тест</th><th scope="col">Аракет</th><th scope="col">Мыктысы</th><th scope="col">Акыркысы</th></tr></thead>
           <tbody>${[...course.lessons.map(unit => unit.title), "Жыйынтыктоочу тест"].map((title, index) => {
             const events = tests.get(track + "/" + (index === 5 ? "final" : index + 1)) || [];
             const latest = events.at(-1);
             const best = events.reduce((value, event) => Math.max(value, event.percent), 0);
-            return `<tr><th scope="row">${escape(title)}</th><td>${events.length}</td>
+            return `<tr><th scope="row">${rawEscape(title)}</th><td>${events.length}</td>
               <td>${events.length ? best + "%" : "—"}</td><td>${latest ? latest.percent + "% · " + showDate(latest.date) : "—"}</td></tr>`;
           }).join("")}</tbody>
         </table></div>`).join("")}
       <h3>Практикалык отчёттор</h3>
       ${reports.length ? reports.reverse().map(event => {
         const task = courses[event.track].practices[Number(event.activity) - 1];
-        return `<details><summary>${escape(courses[event.track].title)} · ${escape(task.title)} · ${showDate(event.date)}</summary>
-          ${task.prompts.map(([title], i) => `<div class="review"><strong>${escape(title)}</strong><p class="journal-work">${escape(event.answers[i])}</p></div>`).join("")}
+        return `<details><summary>${rawEscape(courses[event.track].title)} · ${rawEscape(task.title)} · ${showDate(event.date)}</summary>
+          ${task.prompts.map(([title], i) => `<div class="review"><strong>${rawEscape(title)}</strong><p class="journal-work">${rawEscape(event.answers[i])}</p></div>`).join("")}
         </details>`;
       }).join("") : '<p class="muted">Отчёт тапшырыла элек.</p>'}
     </section>`;
@@ -305,13 +307,13 @@
           <button class="button button-primary" type="submit">Жеке код түзүү</button>
         </form></details>
         <p class="notice" id="student-status" role="status"></p>
-        ${issued ? `<div class="callout"><strong>${escape(issued.student.name)} · жеке кирүү коду</strong><p><code class="journal-code">${escape(issued.code)}</code></p><p class="small-note">Кодду ушул окуучуга гана бериңиз.</p></div>` : ""}
-        ${rosterError ? `<p class="notice error">${escape(rosterError)}</p>` : ""}
+        ${issued ? `<div class="callout"><strong>${rawEscape(issued.student.name)} · жеке кирүү коду</strong><p><code class="journal-code">${rawEscape(issued.code)}</code></p><p class="small-note">Кодду ушул окуучуга гана бериңиз.</p></div>` : ""}
+        ${rosterError ? `<p class="notice error">${rawEscape(rosterError)}</p>` : ""}
         ${!roster ? (rosterError ? "" : '<p class="muted">Окуучулар жүктөлүүдө…</p>') : roster.length ? `<div class="journal-table-wrap"><table class="journal-table">
           <thead><tr><th scope="col">Окуучу</th><th scope="col">Прогресс</th><th scope="col">Тест</th><th scope="col">Отчёт</th><th scope="col">Аракет</th></tr></thead>
           <tbody>${roster.map(entry => `<tr>
-            <th scope="row"><button class="journal-name" type="button" data-journal="student" data-id="${escape(entry.id)}">${escape(entry.name)}</button>
-              ${entry.username ? `<small class="journal-username">${escape(entry.username)}</small>` : ""}</th>
+            <th scope="row"><button class="journal-name" type="button" data-journal="student" data-id="${rawEscape(entry.id)}">${rawEscape(entry.name)}</button>
+              ${entry.username ? `<small class="journal-username">${rawEscape(entry.username)}</small>` : ""}</th>
             <td>${entry.tests + entry.reports} / 16</td><td>${entry.tests} / 12</td><td>${entry.reports} / 4</td><td>${entry.attempts}</td>
           </tr>`).join("")}</tbody>
         </table></div>` : '<p class="muted">Окуучулар кошула элек.</p>'}
@@ -328,7 +330,7 @@
     rosterError = "";
     try {
       const entries = await request("roster");
-      if (version === sessionVersion) roster = entries.sort((a, b) => a.name.localeCompare(b.name, "ky"));
+      if (version === sessionVersion) roster = entries.sort((a, b) => a.name.localeCompare(b.name, getLang() === "ru" ? "ru" : "ky"));
     } catch (error) {
       if (version === sessionVersion) rosterError = error.message;
     } finally {
@@ -458,6 +460,6 @@
     }
   }
 
-  window.CourseJournal = { renderAccount: account, renderAdmin: admin, isStudent: () => profile?.role === "student" && !profile.mustChange, submit };
+  window.CourseJournal = { renderAccount: account, renderAdmin: admin, isStudent: () => profile?.role === "student" && !profile.mustChange, submit, refreshHeader: updateHeader };
   restore();
 })();

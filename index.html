@@ -8,6 +8,7 @@
   <meta name="author" content="zhyldtaryh">
   <link rel="canonical" href="https://zhyldyzbek.github.io/zhyldtaryh/">
   <meta property="og:locale" content="ky_KG">
+  <meta property="og:locale:alternate" content="ru_RU">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="zhyldtaryh">
   <meta property="og:title" content="zhyldtaryh · Тарых курсу">
@@ -24,7 +25,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600;7..72,700&family=Manrope:wght@500;600;700;800&display=swap">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=6">
+  <script>
+    try { if (localStorage.getItem("zhyldtaryh.lang") === "ru") document.documentElement.lang = "ru"; } catch (e) {}
+  </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -38,12 +42,13 @@
   }
   </script>
   <script defer src="curriculum.js"></script>
-  <script defer src="app.js?v=4"></script>
+  <script defer src="i18n.js?v=2"></script>
+  <script defer src="app.js?v=6"></script>
   <script defer src="journal-config.js"></script>
-  <script defer src="journal.js?v=2"></script>
+  <script defer src="journal.js?v=3"></script>
 </head>
 <body>
-  <a class="skip" href="#main" id="skip-link">Мазмунга өтүү</a>
+  <a class="skip" href="#main" id="skip-link" data-i18n="Мазмунга өтүү">Мазмунга өтүү</a>
   <header class="site-header">
     <div class="shell topbar">
       <a class="brand" href="#home">
@@ -60,23 +65,33 @@
         <span>zhyldtaryh</span>
       </a>
       <div class="topbar-actions">
-        <a class="button button-quiet" href="#progress" id="progress-link">Менин иштерим</a>
+        <div class="lang-switch" data-lang-switch role="group" aria-label="Тил">
+          <button type="button" data-set-lang="ky" aria-pressed="true">КЫР</button>
+          <span class="lang-switch-sep" aria-hidden="true">|</span>
+          <button type="button" data-set-lang="ru" aria-pressed="false">РУС</button>
+        </div>
+        <a class="button button-quiet" href="#progress" id="progress-link" data-i18n="Менин иштерим">Менин иштерим</a>
         <a class="button button-primary" href="#account" id="journal-link" hidden>Кирүү</a>
       </div>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
         <span class="nav-toggle-bars" aria-hidden="true"></span>
-        <span class="sr-only">Меню</span>
+        <span class="sr-only" data-i18n="Меню">Меню</span>
       </button>
     </div>
     <div class="nav-line" id="nav-panel">
-      <nav class="shell nav" id="main-nav" aria-label="Курстун бөлүмдөрү">
-        <a href="#home" data-section="home">Курс жөнүндө</a>
+      <nav class="shell nav" id="main-nav" aria-label="Курстун бөлүмдөрү" data-i18n-aria="Курстун бөлүмдөрү">
+        <div class="lang-switch nav-lang" data-lang-switch role="group" aria-label="Тил">
+          <button type="button" data-set-lang="ky" aria-pressed="true">КЫР</button>
+          <span class="lang-switch-sep" aria-hidden="true">|</span>
+          <button type="button" data-set-lang="ru" aria-pressed="false">РУС</button>
+        </div>
+        <a href="#home" data-section="home" data-i18n="Курс жөнүндө">Курс жөнүндө</a>
         <a href="#plans" data-section="plans">КТП</a>
-        <a href="#lectures" data-section="lectures">Лекциялар</a>
+        <a href="#lectures" data-section="lectures" data-i18n="Лекциялар">Лекциялар</a>
         <a href="#practice" data-section="practice">Практика</a>
-        <a href="#tests" data-section="tests">Тесттер</a>
+        <a href="#tests" data-section="tests" data-i18n="Тесттер">Тесттер</a>
         <a href="#exam" data-section="exam">Зачёт</a>
-        <a href="#sources" data-section="sources">Булактар</a>
+        <a href="#sources" data-section="sources" data-i18n="Булактар">Булактар</a>
       </nav>
     </div>
   </header>
@@ -84,7 +99,10 @@
   <main class="shell main-shell" id="main" tabindex="-1">
     <div id="app">
       <h1>Кыргызстан жана дүйнө тарыхы</h1>
-      <noscript><p>Интерактивдүү курсту колдонуу үчүн браузерде JavaScript’ти иштетиңиз.</p></noscript>
+      <noscript>
+        <p>Интерактивдүү курсту колдонуу үчүн браузерде JavaScript’ти иштетиңиз.</p>
+        <p>Чтобы пользоваться интерактивным курсом, включите JavaScript в браузере.</p>
+      </noscript>
     </div>
     <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
   </main>
@@ -93,19 +111,19 @@
     <div class="shell footer-inner">
       <div class="footer-brand">
         <strong>zhyldtaryh</strong>
-        <span class="muted">· 7-класс</span>
+        <span class="muted" data-i18n="· 7-класс">· 7-класс</span>
       </div>
-      <nav class="footer-nav" aria-label="Төмөнкү бөлүмдөр">
-        <a href="#home" data-section="home">Курс жөнүндө</a>
+      <nav class="footer-nav" aria-label="Төмөнкү бөлүмдөр" data-i18n-aria="Төмөнкү бөлүмдөр">
+        <a href="#home" data-section="home" data-i18n="Курс жөнүндө">Курс жөнүндө</a>
         <a href="#plans" data-section="plans">КТП</a>
-        <a href="#lectures" data-section="lectures">Лекциялар</a>
+        <a href="#lectures" data-section="lectures" data-i18n="Лекциялар">Лекциялар</a>
         <a href="#practice" data-section="practice">Практика</a>
-        <a href="#tests" data-section="tests">Тесттер</a>
+        <a href="#tests" data-section="tests" data-i18n="Тесттер">Тесттер</a>
         <a href="#exam" data-section="exam">Зачёт</a>
       </nav>
-      <a id="footer-source-link" href="#sources" data-section="sources">Булактар жана сүрөт</a>
+      <a id="footer-source-link" href="#sources" data-section="sources" data-i18n="Булактар жана сүрөт">Булактар жана сүрөт</a>
     </div>
   </footer>
-  <a class="to-top" href="#home" hidden>Жогору</a>
+  <a class="to-top" href="#home" hidden data-i18n="Жогору">Жогору</a>
 </body>
 </html>
