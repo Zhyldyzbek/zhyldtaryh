@@ -129,6 +129,8 @@ progress::-moz-progress-bar { background: var(--forest); border-radius: 20px; }
 .notice:empty { display: none; }
 .notice.error { color: var(--error); background: var(--error-bg); }
 .journal-input { min-height: 44px; width: 100%; color: var(--ink); background: var(--white); border: 1px solid #b9c8bc; border-radius: 9px; padding: .62rem .75rem; }
+.journal-auth-nav { margin-bottom: .9rem; }
+.journal-username { display: block; color: var(--muted); font-weight: 400; }
 .journal-enroll { display: flex; flex-wrap: wrap; gap: .6rem; align-items: flex-end; margin: .85rem 0 1rem; }
 .journal-enroll .field { flex: 1 1 235px; max-width: 410px; margin: 0; }
 .journal-code { overflow-wrap: anywhere; }
