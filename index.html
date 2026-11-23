@@ -3,12 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#15362d">
+  <meta name="theme-color" content="#0E2240">
   <meta name="description" content="7-класс үчүн Кыргызстан тарыхы жана дүйнө тарыхы. КББАнын КТПсына негизделген лекциялар, практикалык иштер жана тесттер.">
+  <meta name="author" content="zhyldtaryh">
+  <link rel="canonical" href="https://zhyldyzbek.github.io/zhyldtaryh/">
+  <meta property="og:locale" content="ky_KG">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="zhyldtaryh">
+  <meta property="og:title" content="zhyldtaryh · Тарых курсу">
+  <meta property="og:description" content="7-класс үчүн Кыргызстан тарыхы жана дүйнө тарыхы. КББАнын КТПсына негизделген лекциялар, практикалык иштер жана тесттер.">
+  <meta property="og:url" content="https://zhyldyzbek.github.io/zhyldtaryh/">
+  <meta property="og:image" content="https://zhyldyzbek.github.io/zhyldtaryh/burana.jpg">
+  <meta property="og:image:alt" content="Бурана мунарасы, Чүй өрөөнү">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="zhyldtaryh · Тарых курсу">
+  <meta name="twitter:description" content="7-класс үчүн Кыргызстан тарыхы жана дүйнө тарыхы. КББАнын КТПсына негизделген лекциялар, практикалык иштер жана тесттер.">
+  <meta name="twitter:image" content="https://zhyldyzbek.github.io/zhyldtaryh/burana.jpg">
   <title>zhyldtaryh · Тарых курсу</title>
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600;7..72,700&family=Manrope:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="styles.css?v=4">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Кыргызстан жана дүйнө тарыхы",
+    "description": "7-класс үчүн Кыргызстан тарыхы жана дүйнө тарыхы. КББАнын КТПсына негизделген лекциялар, практикалык иштер жана тесттер.",
+    "inLanguage": "ky",
+    "educationalLevel": "7-класс",
+    "url": "https://zhyldyzbek.github.io/zhyldtaryh/",
+    "image": "https://zhyldyzbek.github.io/zhyldtaryh/burana.jpg"
+  }
+  </script>
   <script defer src="curriculum.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="app.js?v=4"></script>
   <script defer src="journal-config.js"></script>
   <script defer src="journal.js?v=2"></script>
 </head>
@@ -17,15 +47,28 @@
   <header class="site-header">
     <div class="shell topbar">
       <a class="brand" href="#home">
-        <span class="brand-mark" aria-hidden="true">z</span>
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="26" height="26">
+            <circle cx="16" cy="16" r="10" fill="none" stroke="#0E2240" stroke-width="1.6"/>
+            <circle cx="16" cy="16" r="3" fill="none" stroke="#0E2240" stroke-width="1.4"/>
+            <g fill="none" stroke="#0E2240" stroke-width="1.35" stroke-linecap="round">
+              <path d="M16 6.4v5M16 20.6v5M6.4 16h5M20.6 16h5"/>
+              <path d="M9.2 9.2l3.4 3.4M19.4 19.4l3.4 3.4M22.8 9.2l-3.4 3.4M12.6 19.4l-3.4 3.4"/>
+            </g>
+          </svg>
+        </span>
         <span>zhyldtaryh</span>
       </a>
       <div class="topbar-actions">
         <a class="button button-quiet" href="#progress" id="progress-link">Менин иштерим</a>
         <a class="button button-primary" href="#account" id="journal-link" hidden>Кирүү</a>
       </div>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="nav-toggle-bars" aria-hidden="true"></span>
+        <span class="sr-only">Меню</span>
+      </button>
     </div>
-    <div class="nav-line">
+    <div class="nav-line" id="nav-panel">
       <nav class="shell nav" id="main-nav" aria-label="Курстун бөлүмдөрү">
         <a href="#home" data-section="home">Курс жөнүндө</a>
         <a href="#plans" data-section="plans">КТП</a>
@@ -48,9 +91,21 @@
 
   <footer class="site-footer">
     <div class="shell footer-inner">
-      <span><strong>zhyldtaryh</strong> <span class="muted">· 7-класс</span></span>
-      <a id="footer-source-link" href="#sources">Булактар жана сүрөт</a>
+      <div class="footer-brand">
+        <strong>zhyldtaryh</strong>
+        <span class="muted">· 7-класс</span>
+      </div>
+      <nav class="footer-nav" aria-label="Төмөнкү бөлүмдөр">
+        <a href="#home" data-section="home">Курс жөнүндө</a>
+        <a href="#plans" data-section="plans">КТП</a>
+        <a href="#lectures" data-section="lectures">Лекциялар</a>
+        <a href="#practice" data-section="practice">Практика</a>
+        <a href="#tests" data-section="tests">Тесттер</a>
+        <a href="#exam" data-section="exam">Зачёт</a>
+      </nav>
+      <a id="footer-source-link" href="#sources" data-section="sources">Булактар жана сүрөт</a>
     </div>
   </footer>
+  <a class="to-top" href="#home" hidden>Жогору</a>
 </body>
 </html>

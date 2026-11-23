@@ -3,6 +3,22 @@
 const app = document.querySelector("#app");
 const main = document.querySelector("#main");
 const announcement = document.querySelector("#announcement");
+const navToggle = document.querySelector(".nav-toggle");
+const navLine = document.querySelector(".nav-line");
+const toTop = document.querySelector(".to-top");
+
+function setNavOpen(open) {
+  if (!navLine || !navToggle) return;
+  navLine.classList.toggle("is-open", open);
+  navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  const label = navToggle.querySelector(".sr-only");
+  if (label) label.textContent = open ? "Менюну жабуу" : "Меню";
+}
+
+function syncToTop() {
+  if (!toTop) return;
+  toTop.hidden = window.scrollY < 240;
+}
 const storageKey = "zhyldtaryh.works.v1";
 const emptyWork = () => ({ read: {}, attempts: {}, quizDrafts: {}, reports: {}, reportDrafts: {}, pending: {} });
 const work = { kg: emptyWork(), world: emptyWork() };
@@ -113,7 +129,7 @@ function localStatus() {
 
 function progressCard() {
   const total = completion("kg") + completion("world");
-  return `<aside class="panel">
+  return `<aside class="panel panel-accent">
     <h2>Менин прогрессим</h2>
     <div class="progress-cover"><strong>${total} / 16</strong><span class="muted">аткарылган иш</span></div>
     <progress value="${total}" max="16" aria-label="Жалпы прогресс"></progress>
@@ -126,14 +142,16 @@ function progressCard() {
 
 function renderHome() {
   return `<section class="hero" aria-labelledby="hero-title">
-    <img class="hero-image" src="burana.jpg" alt="" width="960" height="595" fetchpriority="high">
     <div class="hero-copy">
       <span class="kicker">7-класс · Тарых курсу</span>
       <h1 id="hero-title" tabindex="-1">Кыргызстан жана<br>дүйнө тарыхы</h1>
       <p class="intro">Эне-Сай кыргыздарынан орто кылымдагы дүйнөгө чейин. КББАнын КТПсына негизделген сабактар.</p>
       <div class="actions">${link(route("lectures", "kg"), "Окууну баштоо", "gold")}</div>
     </div>
-    <p class="hero-caption">Бурана мунарасы · Чүй өрөөнү</p>
+    <figure class="hero-figure">
+      <img class="hero-image" src="burana.jpg" alt="" width="960" height="595" fetchpriority="high">
+      <figcaption class="hero-caption">Бурана мунарасы · Чүй өрөөнү</figcaption>
+    </figure>
   </section>
   <div class="stats" aria-label="Курстун мазмуну">
     ${[[10, "лекция"], [4, "практика"], [12, "тест"], [2, "зачёт"]].map(([number, label]) => `<div class="stat"><strong>${number}</strong><span>${label}</span></div>`).join("")}
@@ -187,7 +205,7 @@ function renderLesson(track, index) {
   const read = Boolean(work[track].read[index]);
   return pageHead(unit.title, unit.lead, courses[track].title + " · " + index + "-лекция")
     + `<article class="panel article">
-      ${track === "kg" && index === "3" ? `<figure class="figure"><img class="history-image" src="burana.jpg" alt="Бурана мунарасы жана анын айланасындагы тарыхый жай" width="960" height="595"><figcaption>Бурана мунарасы, Чүй өрөөнү</figcaption></figure>` : ""}
+      ${track === "kg" && index === "3" ? `<figure class="figure"><img class="history-image" src="burana.jpg" alt="Бурана мунарасы жана анын айланасындагы тарыхый жай" width="960" height="595" decoding="async"><figcaption>Бурана мунарасы, Чүй өрөөнү</figcaption></figure>` : ""}
       ${unit.sections.map(([heading, text]) => `<section><h2>${escape(heading)}</h2><p>${escape(text)}</p></section>`).join("")}
       <section><h2>Булактар</h2>${sourceList(unit.materials)}</section>
       <p class="notice" id="lesson-message" role="status"></p>
@@ -419,6 +437,8 @@ function render({ moveFocus = false } = {}) {
   }
   document.querySelector("#progress-link").href = route("progress", track);
   app.innerHTML = renderers[section](track, index);
+  setNavOpen(false);
+  syncToTop();
   const heading = app.querySelector("h1");
   document.title = section === "home" ? "zhyldtaryh · Тарых курсу" : heading.textContent.trim() + " · zhyldtaryh";
   if (moveFocus) {
@@ -584,6 +604,23 @@ app.addEventListener("click", async event => {
 document.querySelector("#skip-link").addEventListener("click", event => {
   event.preventDefault();
   main.focus();
+});
+navToggle?.addEventListener("click", () => {
+  setNavOpen(navToggle.getAttribute("aria-expanded") !== "true");
+});
+navLine?.addEventListener("click", event => {
+  if (event.target.closest("a")) setNavOpen(false);
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") setNavOpen(false);
+});
+window.addEventListener("scroll", syncToTop, { passive: true });
+toTop?.addEventListener("click", event => {
+  const hash = location.hash;
+  if (hash && hash !== "#" && hash !== "#home") return;
+  event.preventDefault();
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
 });
 window.addEventListener("hashchange", () => render({ moveFocus: true }));
 render();
