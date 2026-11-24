@@ -105,7 +105,11 @@ li + li { margin-top: .4rem; }
   background: radial-gradient(circle at 50% 42%, #f6e2a8, var(--gold) 62%, #c8962e);
   flex: 0 0 auto;
 }
-.topbar-actions { grid-area: actions; display: flex; flex-wrap: wrap; gap: .45rem; }
+.topbar-actions { grid-area: actions; display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.language-switch { display: inline-flex; gap: .125rem; padding: .125rem; border: 1px solid rgba(247, 241, 222, .4); border-radius: 9px; }
+.language-switch a { display: grid; place-items: center; min-width: 37px; min-height: 35px; border-radius: 6px; color: #f7f1de; font-size: .76rem; font-weight: 800; text-decoration: none; }
+.language-switch a:hover { color: var(--gold); }
+.language-switch a[aria-current="true"] { color: var(--navy); background: var(--gold); }
 .nav-toggle {
   grid-area: toggle;
   width: 44px;

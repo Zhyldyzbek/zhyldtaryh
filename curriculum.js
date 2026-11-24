@@ -1,6 +1,6 @@
 "use strict";
 
-const plan = {
+const kyrgyzPlan = {
   title: "7-класстын тарых КТПсы",
   details: "2026-жыл · 6-класстан келген окуучулар үчүн · жылына 68 саат",
   page: "https://kao.kg/7-класс-үчүн-ктп/",
@@ -16,7 +16,7 @@ const plan = {
   ]
 };
 
-const sources = {
+const kyrgyzSources = {
   central: ["Борбордук Азия цивилизацияларынын тарыхы", "ЮНЕСКОнун изилдөөлөр жыйнагы", "https://www.unesco.org/archives/multimedia/document-1595"],
   silk: ["Теңир-Тоо аркылуу өткөн Жибек жолу", "ЮНЕСКОнун Дүйнөлүк мурас борбору", "https://whc.unesco.org/en/list/1442/"],
   burana: ["Баласагын жана Чүй өрөөнүнүн эстеликтери", "ЮНЕСКОнун Дүйнөлүк мурас борбору", "https://whc.unesco.org/en/tentativelists/5518/"],
@@ -35,7 +35,7 @@ const quiz = (prompt, answer, alternatives, reason) => ({ prompt, answer, altern
 const lesson = (title, period, lead, sections, questions, materials) => ({ title, period, lead, sections, questions, materials });
 const practice = (title, description, prompts, materials) => ({ title, description, prompts, materials });
 
-const courses = {
+const kyrgyzCourses = {
   kg: {
     title: "Кыргызстан тарыхы",
     summary: "Эне-Сай кыргыздарынан Карахан каганатына жана Теңир-Тоодогу көчмөн коомго чейин.",
